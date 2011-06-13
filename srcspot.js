@@ -8,7 +8,8 @@ $(document).ready(function() {
 			return randoms[name];
 		}
 		randoms[name] = {"x": Math.floor(Math.random() * mag),
-				         "y": Math.floor(Math.random() * mag) };
+				         "y": Math.floor(Math.random() * mag),
+				         "z": Math.floor(Math.random() * mag)};
 		return randoms[name];
 	};
 	
@@ -25,36 +26,47 @@ $(document).ready(function() {
 		times.push({ "time": commit.date,
 			         "name": name,
 			         "complexity": commit.complexity,
-			         "lineCount" : commit.line_count
+			         "lineCount": commit.line_count,
+			         "committer": randomFor(commit.committer, 255)
 		           });
 	});
 	
 	times = times.reverse();
 	
 	function sketchProc(processing) {
-		var index = 0;
+		var index = 0,
+		    currentTime,
+		    lastTime;
 		
 		processing.setup = function() {
 			processing.size(800, 800);
 			processing.background(255,255,255);
-			processing.frameRate(120);
+			processing.frameRate(60);
 		};
 		
 		processing.draw = function() {
-			if (index >= times.length) {
-				return;
+			currentTime = lastTime;
+			while (true) {
+				if (index >= times.length) {
+					return;
+				}
+				currentTime = times[index].time;
+				if (currentTime != lastTime) {
+					lastTime = currentTime;
+					break;
+				}
+				var circleData = times[index];
+				processing.fill(circleData.committer.x,circleData.committer.y,circleData.committer.z);
+				processing.ellipse(circles[circleData.name].xPos,
+						           circles[circleData.name].yPos,
+						           circleData.complexity,
+						           circleData.complexity);
+				
+				//processing.fill(255,255,255,5);
+				//processing.rect(0,0,800,800);
+	
+				index ++;
 			}
-			var circleData = times[index];
-			processing.fill(circleData.complexity,10,10);
-			processing.ellipse(circles[circleData.name].xPos,
-					           circles[circleData.name].yPos,
-					           circleData.complexity,
-					           circleData.complexity);
-			
-			processing.fill(255,255,255,5);
-			processing.rect(0,0,800,800);
-
-			index ++;
 		};
 	}  
 	
