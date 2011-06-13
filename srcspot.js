@@ -1,32 +1,48 @@
 $(document).ready(function() {
 	var circles = {},
-	    times = [];
+	    times = [],
+	    randoms = {};
+	
+	function randomFor(name, mag) {
+		if (randoms[name]) {
+			return randoms[name];
+		}
+		randoms[name] = {"x": Math.floor(Math.random() * mag),
+				         "y": Math.floor(Math.random() * mag) };
+		return randoms[name];
+	};
 	
 	$.each(data, function(index, commit) {
-		var name = commit.file_name + commit.class_name + commit.method_name;
+		var className = commit.file_name + commit.class_name,
+		    name = className + commit.method_name,
+		    classCoord = randomFor(className, 750),
+		    nameCoord = randomFor(name, 50);
+		
 		circles[name] = { 
-				          "xPos": Math.floor(Math.random()*800),
-				          "yPos": Math.floor(Math.random()*800)
+				          "xPos": nameCoord.x + classCoord.x,
+				          "yPos": nameCoord.y + classCoord.y
 				        };
-		times.push({ "time": commit.date, "name": name, "complexity": commit.complexity });
+		times.push({ "time": commit.date,
+			         "name": name,
+			         "complexity": commit.complexity,
+			         "lineCount" : commit.line_count
+		           });
 	});
 	
-	times.sort(function (time1, time2) {
-		return (time1.time >= time2.time) ? 1 : -1;
-	});
+	times = times.reverse();
 	
 	function sketchProc(processing) {
 		var index = 0;
 		
 		processing.setup = function() {
 			processing.size(800, 800);
-			processing.frameRate(4);
+			processing.background(255,255,255);
+			processing.frameRate(120);
 		};
 		
 		processing.draw = function() {
 			if (index >= times.length) {
-				index = 0;
-				background(255); 
+				return;
 			}
 			var circleData = times[index];
 			processing.fill(circleData.complexity,10,10);
@@ -34,6 +50,10 @@ $(document).ready(function() {
 					           circles[circleData.name].yPos,
 					           circleData.complexity,
 					           circleData.complexity);
+			
+			processing.fill(255,255,255,5);
+			processing.rect(0,0,800,800);
+
 			index ++;
 		};
 	}  
