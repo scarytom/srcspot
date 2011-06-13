@@ -36,7 +36,8 @@ $(document).ready(function() {
 	function sketchProc(processing) {
 		var index = 0,
 		    currentTime,
-		    lastTime;
+		    lastTime,
+		    displayed = {};
 		
 		processing.setup = function() {
 			processing.size(800, 800);
@@ -55,18 +56,22 @@ $(document).ready(function() {
 					lastTime = currentTime;
 					break;
 				}
-				var circleData = times[index];
-				processing.fill(circleData.committer.x,circleData.committer.y,circleData.committer.z);
-				processing.ellipse(circles[circleData.name].xPos,
-						           circles[circleData.name].yPos,
-						           circleData.complexity,
-						           circleData.complexity);
+
+				displayed[times[index].name] = times[index];
 				
 				//processing.fill(255,255,255,5);
 				//processing.rect(0,0,800,800);
 	
 				index ++;
 			}
+			processing.background(255,255,255);
+			$.each(displayed, function(name, circleData) {
+				processing.fill(circleData.committer.x,circleData.committer.y,circleData.committer.z);
+				processing.ellipse(circles[circleData.name].xPos,
+						           circles[circleData.name].yPos,
+						           circleData.complexity,
+						           circleData.complexity);
+			});
 		};
 	}  
 	
